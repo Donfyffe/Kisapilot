@@ -34,7 +34,6 @@ class KisaCruiseControl():
     self.map_speed_block = False
     self.map_speed_dist = 0
     self.map_speed = 0
-    self.map_speed_prev = 0
     self.map_speed_dist_extend = False
     self.onSpeedControl = False
     self.onSpeedBumpControl = False
@@ -214,14 +213,10 @@ class KisaCruiseControl():
 
     if not self.speedlimit_decel_off and not self.sm['carState'].pauseSpdLimit:
       if self.navi_sel in (2, 4):
-        if self.sm['liveENaviData'].wazeRoadSpeedLimit > 9 or self.sm['liveENaviData'].wazeAlertDistance > 0:
+        if self.sm['liveENaviData'].wazeRoadSpeedLimit > 9:
           self.map_speed = self.sm['liveENaviData'].wazeRoadSpeedLimit
           self.map_speed_dist = max(0, self.sm['liveENaviData'].wazeAlertDistance)
           self.map_speed_dist_extend = self.sm['liveENaviData'].wazeAlertExtend
-          if self.map_speed < 9:
-            self.map_speed = self.map_speed_prev
-          else:
-            self.map_speed_prev = self.map_speed
           spdTarget = self.map_speed
           cam_distance_calc = 0
           cam_distance_calc = np.interp(self.map_speed * CV.MPH_TO_KPH if not CS.is_metric else 1, [30, 60, 110], [2.5, 3.0, 3.7])
@@ -363,7 +358,6 @@ class KisaCruiseControl():
         spdTarget = cruise_set_speed_kph
         self.onSpeedControl = False
         self.map_speed = 0
-        self.map_speed_prev = 0
         self.map_speed_dist = 0
         self.map_speed_block = False
         self.onSpeedBumpControl = False
@@ -372,7 +366,6 @@ class KisaCruiseControl():
       spdTarget = cruise_set_speed_kph
       self.onSpeedControl = False
       self.map_speed = 0
-      self.map_speed_prev = 0
       self.map_speed_dist = 0
       self.map_speed_dist_extend = False
       if not self.speedlimit_decel_off and not self.sm['carState'].pauseSpdLimit:
@@ -407,9 +400,9 @@ class KisaCruiseControl():
     if len(self.sm['longitudinalPlan'].e2eX) > 12:
       self.e2e_x = self.sm['longitudinalPlan'].e2eX[12]
 
-    cut_in_model = True if self.lead_1.status and (self.lead_0.dRel - self.lead_1.dRel) > 3.0 and ((0 < self.lead_0.dRel < 85) or (0 < self.lead_1.dRel < 85)) else False
-    dist_sel = self.lead_1.dRel if 0 < self.lead_1.dRel < 85 else self.lead_0.dRel if 0 < self.lead_0.dRel < 85 else CS.lead_distance
-    cut_in_ed_rd_diff = True if 0 < CS.lead_distance <= 90 and (CS.lead_distance - dist_sel) > np.interp(CS.lead_distance, [10, 50], [3.0, 9.0]) else False
+    cut_in_model = True if self.lead_1.status and (self.lead_0.dRel - self.lead_1.dRel) > 3.0 and ((0 < self.lead_0.dRel < 105) or (0 < self.lead_1.dRel < 105)) else False
+    dist_sel = self.lead_1.dRel if 0 < self.lead_1.dRel < 105 else self.lead_0.dRel if 0 < self.lead_0.dRel < 105 else CS.lead_distance
+    cut_in_ed_rd_diff = True if 0 < CS.lead_distance <= 110 and (CS.lead_distance - dist_sel) > np.interp(CS.lead_distance, [10, 50], [3.0, 9.0]) else False
 
     if CS.CP.sccBus == 0 and CS.CP.openpilotLongitudinalControl:
       self.cut_in = cut_in_model or cut_in_ed_rd_diff
