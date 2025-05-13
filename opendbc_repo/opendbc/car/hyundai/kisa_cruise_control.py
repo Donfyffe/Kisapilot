@@ -34,7 +34,6 @@ class KisaCruiseControl():
     self.map_speed_block = False
     self.map_speed_dist = 0
     self.map_speed = 0
-	self.map_speed_prev = 0
     self.map_speed_dist_extend = False
     self.onSpeedControl = False
     self.onSpeedBumpControl = False
@@ -214,15 +213,11 @@ class KisaCruiseControl():
 
     if not self.speedlimit_decel_off and not self.sm['carState'].pauseSpdLimit:
       if self.navi_sel in (2, 4):
-        if self.sm['liveENaviData'].wazeRoadSpeedLimit > 9 or self.sm['liveENaviData'].wazeAlertDistance > 0:
+        if self.sm['liveENaviData'].wazeRoadSpeedLimit > 9:
           self.map_speed = self.sm['liveENaviData'].wazeRoadSpeedLimit
           self.map_speed_dist = max(0, self.sm['liveENaviData'].wazeAlertDistance)
           self.map_speed_dist_extend = self.sm['liveENaviData'].wazeAlertExtend
-          if self.map_speed < 9:
-            self.map_speed = self.map_speed_prev
-          else:
-            self.map_speed_prev = self.map_speed
-		  spdTarget = self.map_speed
+          spdTarget = self.map_speed
           cam_distance_calc = 0
           cam_distance_calc = np.interp(self.map_speed * CV.MPH_TO_KPH if not CS.is_metric else 1, [30, 60, 110], [2.5, 3.0, 3.7])
           consider_speed = np.interp((v_ego_kph - self.map_speed * CV.MPH_TO_KPH if not CS.is_metric else 1), [0, 50], [1, 1.8])
@@ -363,7 +358,6 @@ class KisaCruiseControl():
         spdTarget = cruise_set_speed_kph
         self.onSpeedControl = False
         self.map_speed = 0
-		self.map_speed_prev = 0
         self.map_speed_dist = 0
         self.map_speed_block = False
         self.onSpeedBumpControl = False
