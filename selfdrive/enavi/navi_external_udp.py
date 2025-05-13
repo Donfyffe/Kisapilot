@@ -221,7 +221,7 @@ class ENaviUDP:
                 navi_msg.liveENaviData.wazeAlertExtend = False
                 self.waze_alert_trigger_start = False
             elif len(self.waze_alert_distance) in (1,2,3) and self.waze_alert_distance[0] != '0':
-              self.waze_dist_longer_meter = 402
+              self.waze_dist_longer_meter = 250
               self.waze_road_speed_limit_keep = int(self.waze_road_speed_limit)
               navi_msg.liveENaviData.wazeAlertDistance = round(int(self.waze_alert_distance) / 3.281)
             elif int(self.waze_current_speed) == 0:
